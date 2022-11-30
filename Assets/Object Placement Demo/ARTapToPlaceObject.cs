@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.Networking;
-using Newtonsoft.Json;
 
 public class ARTapToPlaceObject : MonoBehaviour
 {
@@ -16,23 +15,34 @@ public class ARTapToPlaceObject : MonoBehaviour
     private Pose placementPose;
     private bool placementPoseIsValid;
 
-    private string database_url;
-    private string assetbundle_storage_url;
+    private BackendConnection backendConnector;
     private AssetBundle downloaded_bundle;
-    private List<BundleClass> availableBundles;
+    private List<BackendConnection.BundleClass> availableBundles;
     
 
+    /// <summary>
+    /// Start is called before the first frame update
+    /// <para>It initializes the ARRaycastManager and the BackendConnection and requests the list of all available objects.</para>
+    /// </summary>
     void Start()
     {
         arRaycastManager = FindObjectOfType<ARRaycastManager>();
-        
-        database_url = "http://inspirer.lindstedt.berlin/database";
-        assetbundle_storage_url = "http://inspirer.lindstedt.berlin/bundles";
 
-        StartCoroutine(GetAllBundleInfo());
-        // StartCoroutine(GetAssetBundle("streetlampone"));
+        this.backendConnector = new BackendConnection();
+
+        // request information about all available bundles from backend
+        StartCoroutine(backendConnector.getAvailableBundlesInfo((List<BackendConnection.BundleClass> availableBundles) => {
+            this.availableBundles = availableBundles;
+        }));
     }
 
+    /// <summary>
+    /// This method is executed every frame.
+    /// <para>It updates the placement indicator and checks if and with how many fingers the user tapped the screen and acts accordingly.</para>
+    /// <list type="bullet">
+    ///   <item>One finger: Place the object.</item>
+    ///   <item>Two fingers: Download the first object on the list.</item>
+    /// </summary>
     void Update()
     {
         UpdatePlacementPose();
@@ -47,22 +57,23 @@ public class ARTapToPlaceObject : MonoBehaviour
                 }
                 else if (Input.touchCount == 2)
                 {
-                    // this.objectToPlace = Resources.Load("SpaceZeta_StreetLamps/Prefabs/StreetLamp1_Short (Concrete)") as GameObject;
-
-                    // donwlod assetbundle
-                    StartCoroutine(GetAssetBundle(availableBundles[0]));
+                    StartCoroutine(backendConnector.getObjectFromBackend(availableBundles[0], (GameObject objectToPlace) => {
+                        this.objectToPlace = objectToPlace;
+                        Debug.Log("INSPIRER " + this.objectToPlace);
+                    }));
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Updates the position objectToPlace and the placement indicator will be placed.
+    /// </summary>
     void UpdatePlacementPose()
     {
         var screenCenter = Camera.current.ViewportToScreenPoint(new Vector3(0.5f, 0.5f));
         var hits = new List<ARRaycastHit>();
-        // arRaycastManager.Raycast(screenCenter, hits, TrackableType.Planes);
         
-        // placementPoseIsValid = hits.Count > 0;
         placementPoseIsValid = arRaycastManager.Raycast(screenCenter, hits, TrackableType.Planes);
         if (placementPoseIsValid)
         {
@@ -70,6 +81,9 @@ public class ARTapToPlaceObject : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the placement indicator's position and rotation.
+    /// </summary>
     void UpdatePlacementIndicator()
     {
         if (placementPoseIsValid)
@@ -80,51 +94,11 @@ public class ARTapToPlaceObject : MonoBehaviour
         else placementIndicator.SetActive(false);
     }
     
+    /// <summary>
+    /// Places the objectToPlace at the placementPose.
+    /// </summary>
     void PlaceObject()
     {
         Instantiate(objectToPlace, placementPose.position, placementPose.rotation);
-    }
-
-    private IEnumerator GetAllBundleInfo() {
-        UnityWebRequest www = UnityWebRequest.Get(this.database_url + "/bundles");
-        yield return www.SendWebRequest();
-
-        if (www.result != UnityWebRequest.Result.Success) {
-            Debug.Log(www.error);
-        } else {
-            Debug.Log("INSPIRER " + www.downloadHandler.text);
-            // BundleClassList bundleClassList = JsonUtility.FromJson<BundleClassList>("{\"availableBundles\":" + www.downloadHandler.text + "}");
-            List<BundleClass> bundleClassList = JsonConvert.DeserializeObject<List<BundleClass>>(www.downloadHandler.text);
-            this.availableBundles = bundleClassList;
-            Debug.Log("INSPIRER " + bundleClassList);
-            Debug.Log("INSPIRER " + bundleClassList[0]);
-            Debug.Log("INSPIRER " + bundleClassList[0].id);
-            Debug.Log("INSPIRER " + bundleClassList[0].file_name);
-            Debug.Log("INSPIRER " + bundleClassList[0].asset_name);
-            Debug.Log("INSPIRER " + bundleClassList[0].display_name);
-        }
-    }
-
-    private IEnumerator GetAssetBundle(BundleClass online_bundle) {
-        Debug.Log("INSPIRER " + online_bundle);
-        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(this.assetbundle_storage_url + "/" + online_bundle.file_name);
-        Debug.Log("INSPIRER " + online_bundle.file_name);
-        yield return www.SendWebRequest();
- 
-        if (www.result != UnityWebRequest.Result.Success) {
-            Debug.Log(www.error);
-        }
-        else {
-            AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
-            this.objectToPlace = bundle.LoadAsset(online_bundle.asset_name) as GameObject;
-        }
-    }
-
-    [Serializable]
-    public class BundleClass {
-        public int id { get; set; }
-        public string file_name { get; set; }
-        public string display_name { get; set; }
-        public string asset_name { get; set; }
     }
 }
