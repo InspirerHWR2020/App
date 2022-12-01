@@ -4,20 +4,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using UnityEngine.Networking;
 
 public class ARTapToPlaceObject : MonoBehaviour
 {
-    public GameObject objectToPlace; 
+    /// object to be placed with PlaceObject()
+    public GameObject objectToPlace;
+    /// object that diesplays where the objectToPlace will be placed
     public GameObject placementIndicator;
+    /// info to objectToPlace
+    private BackendConnection.BundleClass objectToPlaceInfo;
     
     private ARRaycastManager arRaycastManager;
     private Pose placementPose;
     private bool placementPoseIsValid;
 
+    /// instance of the BackendConnection class used to  communicate with the backend
     private BackendConnection backendConnector;
-    private AssetBundle downloaded_bundle;
+    /// list of all available bundles from the backend
     private List<BackendConnection.BundleClass> availableBundles;
+
+    /// iterarator for the available bundles ==> used to switch between them (debugging)
+    private int testiterator = 0;
     
 
     /// <summary>
@@ -31,9 +38,7 @@ public class ARTapToPlaceObject : MonoBehaviour
         this.backendConnector = new BackendConnection();
 
         // request information about all available bundles from backend
-        StartCoroutine(backendConnector.getAvailableBundlesInfo((List<BackendConnection.BundleClass> availableBundles) => {
-            this.availableBundles = availableBundles;
-        }));
+        this.ReloadAllObjectInfo();
     }
 
     /// <summary>
@@ -57,10 +62,12 @@ public class ARTapToPlaceObject : MonoBehaviour
                 }
                 else if (Input.touchCount == 2)
                 {
-                    StartCoroutine(backendConnector.getObjectFromBackend(availableBundles[0], (GameObject objectToPlace) => {
-                        this.objectToPlace = objectToPlace;
-                        Debug.Log("INSPIRER " + this.objectToPlace);
-                    }));
+                    if (this.testiterator < this.availableBundles.Count && this.availableBundles != null) {
+                        this.testiterator++;
+                    } else {
+                        this.testiterator = 0;
+                    }
+                    LoadObject(this.availableBundles[this.testiterator]);
                 }
             }
         }
@@ -95,10 +102,57 @@ public class ARTapToPlaceObject : MonoBehaviour
     }
     
     /// <summary>
-    /// Places the objectToPlace at the placementPose.
+    /// Places the objectToPlace at the placementPose and adjusts it rotation.
     /// </summary>
     void PlaceObject()
     {
-        Instantiate(objectToPlace, placementPose.position, placementPose.rotation);
+        // adjusting the rotation of the objectToPlace
+        Pose pose = new Pose(placementPose.position, placementPose.rotation);
+        Vector3 rot = pose.rotation.eulerAngles;
+        rot = new Vector3(rot.x, rot.y + 180, rot.z);
+        if (this.objectToPlaceInfo != null) {
+            rot = new Vector3(rot.x + this.objectToPlaceInfo.custom_rotation_x, rot.y + this.objectToPlaceInfo.custom_rotation_y, rot.z + this.objectToPlaceInfo.custom_rotation_z);
+        }
+        pose.rotation = Quaternion.Euler(rot);
+
+        // needed for loaded gltf objects to not be displayed in the wrong position 
+        if (this.objectToPlaceInfo.gltf == true) {
+            this.objectToPlace.SetActive(true);
+        }
+        // placing the object
+        Instantiate(objectToPlace, pose.position, pose.rotation);
+        if (this.objectToPlaceInfo.gltf == true) {
+            this.objectToPlace.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Loads the requested object from the backend if it is not already loaded.
+    /// Otherwise it sets the objectToPlace to the requested object.
+    /// </summary>
+    void LoadObject(BackendConnection.BundleClass objectToPlaceInfo)
+    {
+        // object already loaded
+        if (objectToPlaceInfo.loaded_object != null) {
+            this.objectToPlace = objectToPlaceInfo.loaded_object;
+            this.objectToPlaceInfo = objectToPlaceInfo;
+            return;
+        }
+
+        // load object
+        StartCoroutine(backendConnector.getObjectFromBackend(objectToPlaceInfo, (GameObject objectToPlace) => {
+            this.objectToPlace = objectToPlace;
+            this.objectToPlaceInfo = objectToPlaceInfo;
+            this.objectToPlaceInfo.loaded_object = objectToPlace;
+        }));
+    }
+
+    /// <summary>
+    /// Requests the list of all available objects from the backend.
+    /// </summary>
+    void ReloadAllObjectInfo() {
+        StartCoroutine(backendConnector.getAvailableBundlesInfo((List<BackendConnection.BundleClass> availableBundles) => {
+            this.availableBundles = availableBundles;
+        }));
     }
 }
