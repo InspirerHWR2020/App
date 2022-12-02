@@ -1,0 +1,37 @@
+ManifestFileVersion: 0
+CRC: 2923359886
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: f85ea7ca182d1cb54097f4ce87817cca
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2575d6253d529a55a28d35f7830ad7f9
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/BundledAssets/streetLampBigDouble/StreetLamp1_TallDouble.fbx
+- Assets/BundledAssets/streetLampBigDouble/StreetLamp1_TallDouble (Concrete).prefab
+- Assets/BundledAssets/streetLampBigDouble/StreetLamp1Concrete_mat.mat
+Dependencies: []
