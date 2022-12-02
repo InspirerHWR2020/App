@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.UI;
+using TMPro;
 
 public class ARTapToPlaceObject : MonoBehaviour
 {
@@ -25,6 +27,9 @@ public class ARTapToPlaceObject : MonoBehaviour
 
     /// iterarator for the available bundles ==> used to switch between them (debugging)
     private int testiterator = 0;
+
+    /// PreFab for UI list object of the available bundles
+    public GameObject listObjectPrefab;
     
 
     /// <summary>
@@ -39,6 +44,8 @@ public class ARTapToPlaceObject : MonoBehaviour
 
         // request information about all available bundles from backend
         this.ReloadAllObjectInfo();
+
+        
     }
 
     /// <summary>
@@ -151,8 +158,23 @@ public class ARTapToPlaceObject : MonoBehaviour
     /// Requests the list of all available objects from the backend.
     /// </summary>
     void ReloadAllObjectInfo() {
+        Debug.Log("INSPIRER - ReloadAllObjectInfo");
         StartCoroutine(backendConnector.getAvailableBundlesInfo((List<BackendConnection.BundleClass> availableBundles) => {
             this.availableBundles = availableBundles;
+
+            Debug.Log("INSPIRER available bundle count: " + this.availableBundles.Count);
+
+            foreach (BackendConnection.BundleClass bundle in this.availableBundles) {
+                Debug.Log("INSPIRER bundle: " + bundle.file_name);
+                GameObject uiElement = GameObject.Instantiate(this.listObjectPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+                uiElement.name = "ListObject_" + bundle.id;
+                uiElement.transform.SetParent(GameObject.Find("ObjectsCanvas").transform, false);
+                GameObject.Find(uiElement.name + "/ObjectName").GetComponent<TextMeshProUGUI>().text = bundle.display_name;
+                uiElement.GetComponent<Button>().onClick.AddListener(() => {
+                    LoadObject(bundle);
+                    GameObject.Find("User InterfaceCanvas").GetComponent<Animator>().SetTrigger("Show");
+                });
+            }
         }));
     }
 }
