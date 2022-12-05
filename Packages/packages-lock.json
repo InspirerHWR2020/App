@@ -43,12 +43,12 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.xr.arfoundation": "4.2.3",
-        "com.unity.xr.arkit": "4.2.3",
-        "com.unity.xr.arcore": "4.2.3",
+        "com.unity.xr.arfoundation": "4.2.2",
+        "com.unity.xr.arkit": "4.2.2",
+        "com.unity.xr.arcore": "4.2.2",
         "com.unity.xr.magicleap": "6.4.1",
-        "com.unity.xr.arkit-face-tracking": "4.2.3",
-        "com.unity.xr.openxr": "1.4.2"
+        "com.unity.xr.arkit-face-tracking": "4.2.2",
+        "com.unity.xr.openxr": "1.3.1"
       }
     },
     "com.unity.feature.development": {
@@ -56,8 +56,8 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.ide.visualstudio": "2.0.16",
-        "com.unity.ide.rider": "3.0.15",
+        "com.unity.ide.visualstudio": "2.0.14",
+        "com.unity.ide.rider": "3.0.13",
         "com.unity.ide.vscode": "1.2.5",
         "com.unity.editorcoroutines": "1.0.0",
         "com.unity.performance.profile-analyzer": "1.1.1",
@@ -91,7 +91,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.4.1",
+      "version": "1.3.0",
       "depth": 2,
       "source": "registry",
       "dependencies": {
@@ -117,7 +117,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
-      "version": "3.0.2",
+      "version": "2.0.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -131,13 +131,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.core": {
-      "version": "1.4.2",
+      "version": "1.0.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.unity.modules.androidjni": "1.0.0"
+        "com.unity.modules.unitywebrequest": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
@@ -231,11 +229,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.arfoundation": {
-      "version": "4.2.3",
+      "version": "4.2.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.xr.arsubsystems": "4.2.3",
+        "com.unity.xr.arsubsystems": "4.2.2",
         "com.unity.xr.management": "4.0.1",
         "com.unity.modules.particlesystem": "1.0.0"
       },
@@ -253,12 +251,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.arkit-face-tracking": {
-      "version": "4.2.3",
+      "version": "4.2.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.xr.arkit": "4.2.3",
-        "com.unity.xr.arsubsystems": "4.2.3"
+        "com.unity.xr.arkit": "4.2.2",
+        "com.unity.xr.arsubsystems": "4.2.2"
       },
       "url": "https://packages.unity.com"
     },
@@ -282,7 +280,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.legacyinputhelpers": {
-      "version": "2.1.10",
+      "version": "2.1.9",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -320,13 +318,13 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.openxr": {
-      "version": "1.4.2",
+      "version": "1.3.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.xr.management": "4.0.1",
         "com.unity.xr.legacyinputhelpers": "2.1.2",
-        "com.unity.inputsystem": "1.3.0"
+        "com.unity.inputsystem": "1.0.2"
       },
       "url": "https://packages.unity.com"
     },
