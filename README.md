@@ -40,7 +40,7 @@ Die Administrationsseite der Datenbank (pgAdmin 4) sollte unter `http://<host-ip
 
 ## Konfiguration
 ### Freigelegte Ports
-Die freigelegten Ports der nginx- und des pgAdmin-Containers können angepasst werden, indem in der Datei `docker-compose.yaml` die erste Zahl des `ports`-Parameters geändert wird. Anschließend kann der Befehl `docker-compose up -d` ausgeführt werden, um die angepassten Container erneut zu erstellen.
+Die freigelegten Ports der NGINX- und des pgAdmin-Containers können angepasst werden, indem in der Datei `docker-compose.yaml` die erste Zahl des `ports`-Parameters geändert wird. Anschließend kann der Befehl `docker-compose up -d` ausgeführt werden, um die angepassten Container erneut zu erstellen.
 
 ### pgAdmin 4
 #### Standarduser erstetzen
@@ -49,20 +49,29 @@ Vor der Nutzung sollte der Standard-User für pgAdmin deaktiviert und ein neuer 
    - Username: `test@mail.de`
    - Passwort: `banana`
 2. Man öffnet das User-Menü durch klicken auf den Username in der rechten oberen Ecke (1.) und Auswahl von "Users" (2.):
+   
    <img src="https://user-images.githubusercontent.com/88034713/205608513-346fe3cf-9a50-4a9d-8719-4bb4221fd333.png" width=50%>
 3. Daraufhin muss eine Zeile hinzugefügt werden (1.) und dem User eine Email-Adresse (2.), die Adminrolle (3.) und ein Passwort (4.) zugewiesen werden. Schlussendlich werden die Änderungen gespeichert.
+   
    <img src="https://user-images.githubusercontent.com/88034713/205610340-f4504735-d024-40a7-9095-6af1c986cfff.png" width=50%>
 4. Anschließend muss man sich abmelden, Schritte 1 und 2 nun mit dem neuen Account durchführen und den Standardnutzer durch Anklicken des Mülltonnen-Icons auf der linken Seite des User-Menüs gelöscht werden.
 
 #### Datenbank verbinden
 Um die Datenbank mit der pgAdmin-Oberfläche zu verbinden, müssen folgende Schritte durchgeführt werden:
-1. 
-
+1. In der Menüleiste am oberen Rand "Object" > "Register" > "Server..." anwählen.
+2. Einen beliebigen Servernamen eingeben.
+3. Die Registerkarte "Conncection" auswählen und folgende Standarddaten einfüllen:
+   - Hostname: `database`
+   - Port: `5432`
+   - Maintenance database: `postgres`
+   - Username: `postgres`
+   - Password: `banana`
 
 ### nginx
+Die Standardkonfiguration des Webservers im NGINX Container ist in der Datei `nginx.conf` festgelegt. Hier können die Unterverzeichnisse und der Port, unter denen die Assets und die Postgrest API erreichbar sind, geändert werden. **Achtung**: bei Änderung des Ports, muss der Port des Docker-Containers ebenfalls angepasst werden. Weitere Informationen zur Konfiguration sind in der [NGINX-Dokumentation](https://www.nginx.com/resources/wiki/start/) zu finden.
 
 ### AssetBundles und glTF/GLB Dateien
-
+Um weitere Objekte in der AR-App zur Verfügung stellen zu können, müssen die entsprechenden Ressourcen im richtigen Format im Ordner `assetbundles` abgelegt und zur Datenbank hinzugefügt werden. Das muss für AssetBundles und glTF bzw. GLB Dateien verschieden gemacht werden.
 
 
 ## Backend Struktur
