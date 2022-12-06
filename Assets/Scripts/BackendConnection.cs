@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
@@ -49,7 +47,6 @@ public class BackendConnection
                 Debug.Log(www.error);
             }
             else {
-                Debug.Log("INSPIRER Downloaded bundle is not a gltf file.");
                 AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
                 callback(bundle.LoadAsset(online_bundle_info.asset_name) as GameObject);
             }
@@ -62,8 +59,6 @@ public class BackendConnection
             if (www.result != UnityWebRequest.Result.Success) {
                 Debug.Log(www.error);
             } else {
-                Debug.Log("INSPIRER Downloaded bundle is a gltf file.");
-
                 // save the downloaded file to the temporary directory
                 string path = Application.temporaryCachePath + "/" + online_bundle_info.file_name;
                 System.IO.File.WriteAllBytes(path, www.downloadHandler.data);

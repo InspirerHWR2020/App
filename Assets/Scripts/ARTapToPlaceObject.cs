@@ -44,7 +44,7 @@ public class ARTapToPlaceObject : MonoBehaviour
         this.ReloadAllObjectInfo();
 
         // Listener for SearchImageInput Text
-        GameObject.Find("SearchImageInput").GetComponent<TMP_InputField>().onValueChanged.AddListener(delegate { this.FilterObjects(GameObject.Find("SearchImageInput").GetComponent<TMP_InputField>().text); });
+        GameObject.Find("SearchImageInput").GetComponent<TMP_InputField>().onValueChanged.AddListener(delegate { this.SearchObjects(GameObject.Find("SearchImageInput").GetComponent<TMP_InputField>().text); });
     }
 
     /// <summary>
@@ -56,8 +56,8 @@ public class ARTapToPlaceObject : MonoBehaviour
     /// </summary>
     void Update()
     {
-        UpdatePlacementPose();
-        UpdatePlacementIndicator();
+        this.UpdatePlacementPose();
+        this.UpdatePlacementIndicator();
 
         if (Input.touchCount == 1 && placementPoseIsValid)
         {
@@ -150,18 +150,24 @@ public class ARTapToPlaceObject : MonoBehaviour
     /// Requests the list of all available objects from the backend.
     /// </summary>
     void ReloadAllObjectInfo() {
-        Debug.Log("INSPIRER - ReloadAllObjectInfo");
+        var contentContainer = GameObject.Find("ObjectsCanvas/Scroll View/Viewport/Content");
+        
+        // clear list
+        foreach (Transform child in contentContainer.transform) 
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+
+        // request information about all available bundles from backend and fill list
         StartCoroutine(backendConnector.getAvailableBundlesInfo((List<BackendConnection.BundleClass> availableBundles) => {
             this.availableBundles = availableBundles;
 
-            Debug.Log("INSPIRER available bundle count: " + this.availableBundles.Count);
-
             foreach (BackendConnection.BundleClass bundle in this.availableBundles) 
             {
-                Debug.Log("INSPIRER bundle: " + bundle.file_name);
+                Debug.Log("INSPIRER loading bundle: " + bundle.file_name);
                 GameObject uiElement = GameObject.Instantiate(this.listObjectPrefab, new Vector3(0, 0, 0), Quaternion.identity);
                 uiElement.name = "ListObject_" + bundle.id;
-                uiElement.transform.SetParent(GameObject.Find("ObjectsCanvas").transform, false);
+                uiElement.transform.SetParent(contentContainer.transform, false);
                 GameObject.Find(uiElement.name + "/ObjectName").GetComponent<TextMeshProUGUI>().text = bundle.display_name;
                 uiElement.GetComponent<Button>().onClick.AddListener(() => {
                     LoadObject(bundle);
@@ -198,10 +204,9 @@ public class ARTapToPlaceObject : MonoBehaviour
     /// Searches the ListObjects for the one with the given name and filters the ObjectsCanvas by the given name.
     /// </summary>
     /// <param name="name">The name of the ListObject to search for.</param>
-    public void FilterObjects(string name) {
-        Debug.Log("FilterObjects: " + name);
+    public void SearchObjects(string name) {
         List<int> bundleIds = SearchAvailableBundles(name);
-        foreach (Transform child in GameObject.Find("ObjectsCanvas").transform) {
+        foreach (Transform child in GameObject.Find("ObjectsCanvas/Scroll View/Viewport/Content").transform) {
             if (child.name.StartsWith("ListObject_")) {
                 if (bundleIds.Contains(int.Parse(child.name.Substring(11)))) {  // 11 = "ListObject_".Length
                     child.gameObject.SetActive(true);
