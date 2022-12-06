@@ -6,6 +6,9 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
+
+using Newtonsoft.Json;
 
 public class ARTapToPlaceObject : MonoBehaviour
 {
@@ -21,12 +24,9 @@ public class ARTapToPlaceObject : MonoBehaviour
     private bool placementPoseIsValid;
 
     /// instance of the BackendConnection class used to  communicate with the backend
-    private BackendConnection backendConnector;
+    private BackendConnection backendConnector = new BackendConnection();
     /// list of all available bundles from the backend
     private List<BackendConnection.BundleClass> availableBundles;
-
-    /// iterarator for the available bundles ==> used to switch between them (debugging)
-    private int testiterator = 0;
 
     /// PreFab for UI list object of the available bundles
     public GameObject listObjectPrefab;
@@ -40,12 +40,11 @@ public class ARTapToPlaceObject : MonoBehaviour
     {
         arRaycastManager = FindObjectOfType<ARRaycastManager>();
 
-        this.backendConnector = new BackendConnection();
-
         // request information about all available bundles from backend
         this.ReloadAllObjectInfo();
 
-        
+        // Listener for SearchImageInput Text
+        GameObject.Find("SearchImageInput").GetComponent<TMP_InputField>().onValueChanged.AddListener(delegate { this.FilterObjects(GameObject.Find("SearchImageInput").GetComponent<TMP_InputField>().text); });
     }
 
     /// <summary>
@@ -60,22 +59,11 @@ public class ARTapToPlaceObject : MonoBehaviour
         UpdatePlacementPose();
         UpdatePlacementIndicator();
 
-        if (Input.touchCount > 0) {
-            if (Input.GetTouch(0).phase == TouchPhase.Began)
+        if (Input.touchCount == 1 && placementPoseIsValid)
+        {
+            if (Input.GetTouch(0).phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
             {
-                if (placementPoseIsValid && Input.touchCount == 1)
-                {
-                    PlaceObject();
-                }
-                else if (Input.touchCount == 2)
-                {
-                    if (this.testiterator < this.availableBundles.Count && this.availableBundles != null) {
-                        this.testiterator++;
-                    } else {
-                        this.testiterator = 0;
-                    }
-                    LoadObject(this.availableBundles[this.testiterator]);
-                }
+                PlaceObject();
             }
         }
     }
@@ -117,18 +105,21 @@ public class ARTapToPlaceObject : MonoBehaviour
         Pose pose = new Pose(placementPose.position, placementPose.rotation);
         Vector3 rot = pose.rotation.eulerAngles;
         rot = new Vector3(rot.x, rot.y + 180, rot.z);
-        if (this.objectToPlaceInfo != null) {
+        if (this.objectToPlaceInfo != null) 
+        {
             rot = new Vector3(rot.x + this.objectToPlaceInfo.custom_rotation_x, rot.y + this.objectToPlaceInfo.custom_rotation_y, rot.z + this.objectToPlaceInfo.custom_rotation_z);
         }
         pose.rotation = Quaternion.Euler(rot);
 
         // needed for loaded gltf objects to not be displayed in the wrong position 
-        if (this.objectToPlaceInfo.gltf == true) {
+        if (this.objectToPlaceInfo.gltf == true) 
+        {
             this.objectToPlace.SetActive(true);
         }
         // placing the object
         Instantiate(objectToPlace, pose.position, pose.rotation);
-        if (this.objectToPlaceInfo.gltf == true) {
+        if (this.objectToPlaceInfo.gltf == true) 
+        {
             this.objectToPlace.SetActive(false);
         }
     }
@@ -140,7 +131,8 @@ public class ARTapToPlaceObject : MonoBehaviour
     void LoadObject(BackendConnection.BundleClass objectToPlaceInfo)
     {
         // object already loaded
-        if (objectToPlaceInfo.loaded_object != null) {
+        if (objectToPlaceInfo.loaded_object != null) 
+        {
             this.objectToPlace = objectToPlaceInfo.loaded_object;
             this.objectToPlaceInfo = objectToPlaceInfo;
             return;
@@ -164,7 +156,8 @@ public class ARTapToPlaceObject : MonoBehaviour
 
             Debug.Log("INSPIRER available bundle count: " + this.availableBundles.Count);
 
-            foreach (BackendConnection.BundleClass bundle in this.availableBundles) {
+            foreach (BackendConnection.BundleClass bundle in this.availableBundles) 
+            {
                 Debug.Log("INSPIRER bundle: " + bundle.file_name);
                 GameObject uiElement = GameObject.Instantiate(this.listObjectPrefab, new Vector3(0, 0, 0), Quaternion.identity);
                 uiElement.name = "ListObject_" + bundle.id;
@@ -176,5 +169,46 @@ public class ARTapToPlaceObject : MonoBehaviour
                 });
             }
         }));
+    }
+
+    /// <summary>
+    /// Searches the availableBundles for the one with the given name returns a list with the ids of the objects that match the given name.
+    /// </summary>
+    /// <param name="name">The name of the object to search for.</param>
+    /// <returns>A list with the ids of the objects that match the given name.</returns>
+    private List<int> SearchAvailableBundles(string name) {
+        List<int> ids = new List<int>();
+        if (name == "")
+        {
+            foreach (BackendConnection.BundleClass bundle in this.availableBundles) {
+                ids.Add(bundle.id);
+            }
+            return ids;
+        }
+        foreach (BackendConnection.BundleClass bundle in this.availableBundles) {
+            if (bundle.display_name.ToLower().Contains(name.ToLower())) {
+                ids.Add(bundle.id);
+            }
+        }
+        return ids;
+    }
+
+
+    /// <summary>
+    /// Searches the ListObjects for the one with the given name and filters the ObjectsCanvas by the given name.
+    /// </summary>
+    /// <param name="name">The name of the ListObject to search for.</param>
+    public void FilterObjects(string name) {
+        Debug.Log("FilterObjects: " + name);
+        List<int> bundleIds = SearchAvailableBundles(name);
+        foreach (Transform child in GameObject.Find("ObjectsCanvas").transform) {
+            if (child.name.StartsWith("ListObject_")) {
+                if (bundleIds.Contains(int.Parse(child.name.Substring(11)))) {  // 11 = "ListObject_".Length
+                    child.gameObject.SetActive(true);
+                } else {
+                    child.gameObject.SetActive(false);
+                }
+            }
+        }
     }
 }
