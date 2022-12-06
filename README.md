@@ -71,7 +71,55 @@ Um die Datenbank mit der pgAdmin-Oberfläche zu verbinden, müssen folgende Schr
 Die Standardkonfiguration des Webservers im NGINX Container ist in der Datei `nginx.conf` festgelegt. Hier können die Unterverzeichnisse und der Port, unter denen die Assets und die Postgrest API erreichbar sind, geändert werden. **Achtung**: bei Änderung des Ports, muss der Port des Docker-Containers ebenfalls angepasst werden. Weitere Informationen zur Konfiguration sind in der [NGINX-Dokumentation](https://www.nginx.com/resources/wiki/start/) zu finden.
 
 ### AssetBundles und glTF/GLB Dateien
-Um weitere Objekte in der AR-App zur Verfügung stellen zu können, müssen die entsprechenden Ressourcen im richtigen Format im Ordner `assetbundles` abgelegt und zur Datenbank hinzugefügt werden. Das muss für AssetBundles und glTF bzw. GLB Dateien verschieden gemacht werden.
+Um weitere Objekte in der AR-App zur Verfügung stellen zu können, müssen die entsprechenden Ressourcen im richtigen Format im Ordner `assetbundles` abgelegt und zur Datenbank hinzugefügt werden. Dazu muss man bei AssetBundles und glTF- bzw. GLB-Dateien verschieden vorgehen.
+
+#### Ablegen im `assetbundles` Ordner
+
+**AssetBundles** müssen lediglich im Ordner `assetbundles` abgelegt werden. Im AssetBundle müssen ein Prefab für das Objekt und die dazugehörigen Assets vorhanden sein.
+
+Zur Verwendung von **glTF- und GLB-Dateien** werden diese ebenfalls im Ordner `assetbundles` abgelegt. Zusätzlich müssen jedoch die zugehörigen Texturen in einem Ordner abgelegt werden, dessen Name dem der Datei ohne die Dateiendung entspricht.
+
+<details><summary>Beispiel: Ordnerstruktur</summary>
+   <p>
+      Diese Ordnerstruktur enthält `streetlampone` als Beispiel für ein AssetBundle und `sink_mixer.gltf` mit der zugehörigen Textur als Beispiel für eine glTF-Datei.
+      
+      ├─ assetbundles
+      │  ├─ sink_mixer
+      │  │  └─ sink-mixer-ao.png
+      │  ├─ sink_mixer.gltf
+      │  ├─ steetlampone
+      │  └─ ...
+      ├─ data
+      │  └─ ...
+      ├─ docker-compose.yaml
+      └─ nginx.conf
+      
+   </p>
+</details>
+
+
+#### Datenbankeintrag ergänzen
+Die App greift nur auf Dateien zu, die auch in der Tabelle `bundles` der Datenbank eingetragen sind. Pro platzierbarem Objekt wird ein Eintrag benötigt. Dabei ist die Struktur der Tabelle folgende:
+
+| Spalte             | Datentyp  | Not NULL  | Standardwert | Beschreibung                                                             |zu setzen für |
+|--------------------|-----------|-----------|--------------|--------------------------------------------------------------------------|--------------|
+|id                  |integer    |wahr       |laufende Zahl |automatisch generierter Primärschlüssel                                   |alle          |
+|file_name           |text       |wahr       |null          |Name der direkt in `assetbundles` abgelegten Datei                        |alle          |
+|display_name        |text       |falsch     |null          |Anzeigename für die UI                                                    |alle          |
+|asset_name          |text       |falsch     |null          |Name des Prefabs innerhalb eines AssetBundles                             |AssetBundles  |
+|gltf                |boolean    |wahr       |false         |Gibt an, ob es sich um eine glTF-/GLB-Datei oder ein AssetBundle handelt  |alle          |
+|additional_files    |text[]     |falsch     |null          |Liste der im zugehörigen Ordner abgelegten Texturen für glTF-/GLB-Dateien |glTF/GLB      |
+|custom_rotation_x   |integer    |wahr       |0             |Rotation des Objektes in x-Richtung, um es richtig auszurichten.          |alle          |
+|custom_rotation_y   |integer    |wahr       |0             |Rotation des Objektes in y-Richtung, um es richtig auszurichten.          |alle          |
+|custom_rotation_z   |integer    |wahr       |0             |Rotation des Objektes in z-Richtung, um es richtig auszurichten.          |alle          |
+
+
+Diese Datenbankeinträge enthalten analog zum Ordnerpfad Beispiel im Abschnitt *[Ablegen im `assetbundles` Ordner](#ablegen-im-assetbundles-ordner)* `streetlampone` als AssetBundle und `sink_mixer.gltf` als glTF-Datei.
+
+| id  | file_name       | display_name             | asset_name                     | gltf   | additional_files   | custom_rotation_x  | custom_rotation_y  | custom_rotation_z  |
+| --- | --------------- | ------------------------ | ------------------------------ | ------ | ------------------ | ------------------ | ------------------ | ------------------ |
+| 1   | streetlampone   | Straßenlaterne (klein)   | StreetLamp1_Short (Concrete)   | false  | \[null\]           | 0                  | 0                  | 0                  |
+| 2   | sink_mixer.gltf | Wasserhahn               | \[null\]                       | true   | {sink-mixer-ao.png}| 90                 | 0                  | 0                  |
 
 
 ## Backend Struktur
@@ -93,9 +141,9 @@ Um weitere Objekte in der AR-App zur Verfügung stellen zu können, müssen die 
 
 ----
 # Mitwirkende
-@KuroKurama01
-@Luc1412
-@nbethmann
-@paulchen63
-@Hutmensch
+[@KuroKurama01](https://github.com/KuroKurama01)
+[@Luc1412](https://github.com/Luc1412)
+[@nbethmann](https://github.com/nbethmann)
+[@paulchen63](https://github.com/paulchen63)
+[@Hutmensch](https://github.com/Hutmensch)
 > Und jetzt... Affengeräusche. :monkey:
