@@ -1,11 +1,6 @@
 # INSPIRER: Object Placement Demo
 
-<details><summary>Demo Video</summary>
-   <video>
-      <source src="/docs/videos/demo_video.mp4" type="video/mp4">
-      Das Video kann nicht abgespielt werden, ist aber unter <a href="/docs/videos/demo_video.mp4">diesem Link</a> verfügbar.
-   </video>
-</details>
+https://user-images.githubusercontent.com/88034713/206235447-e629eb81-8ec8-4f6f-be75-99d68800bebd.mp4
 
 # Inhalt
 1. [Backend](#backend)
@@ -57,11 +52,15 @@ Vor der Nutzung sollte der Standard-User für pgAdmin deaktiviert und ein neuer 
    - Passwort: `banana`
 2. Man öffnet das User-Menü durch klicken auf den Username in der rechten oberen Ecke (1.) und Auswahl von "Users" (2.):
    <details><summary>Bild</summary>
-      <img src="/docs/images/pgAdmin_config_1.png" width=100%>
+   
+      ![](/docs/images/pgAdmin_config_1.png)
+      
    </details>
 3. Daraufhin muss eine Zeile hinzugefügt werden (1.) und dem User eine Email-Adresse (2.), die Adminrolle (3.) und ein Passwort (4.) zugewiesen werden. Schlussendlich werden die Änderungen gespeichert.
    <details><summary>Bild</summary>
-   <img src="/docs/images/pgAdmin_config_2.png" width=100%>
+   
+      ![](/docs/images/pgAdmin_config_2.png)
+      
    </details>
 4. Anschließend muss man sich abmelden, Schritte 1 und 2 nun mit dem neuen Account durchführen und den Standardnutzer durch Anklicken des Mülltonnen-Icons auf der linken Seite des User-Menüs gelöscht werden.
 
@@ -133,7 +132,9 @@ Diese Datenbankeinträge enthalten analog zum Ordnerpfad Beispiel im Abschnitt *
 
 ## Backend Struktur
 <details><summary>Abbildung</summary>
-<img src="/docs/images/backend_structure.jpg" width=100%>
+
+   ![](/docs/images/backend_structure.jpg)
+   
 </details>
 
 
