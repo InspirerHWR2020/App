@@ -10,7 +10,7 @@ using UnityEngine.EventSystems;
 
 using Newtonsoft.Json;
 
-public class ARTapToPlaceObject : MonoBehaviour
+public class MainScene : MonoBehaviour
 {
     /// object to be placed with PlaceObject()
     public GameObject objectToPlace;
