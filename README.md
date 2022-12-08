@@ -10,7 +10,7 @@ https://user-images.githubusercontent.com/88034713/206235447-e629eb81-8ec8-4f6f-
    4. [Konfiguration](#konfiguration)
 2. [Frontend](#frontend)
    1. [Installation](#installation-1)
-   1. [Anbindung an Backend](#anbindung-an-backend)
+   1. [Skripte](#skripte)
    2. [UI](#ui)
 
 -----------------------------------------------------------------------------------
@@ -307,7 +307,24 @@ Es gibt zwei Wege, die App auf einem Smartphone zu installieren:
   - In Unity `File` und `Build and Run` auswählen.
 
 
-## Anbindung an Backend
+## Skripte
+Die bedeutendsten Skripte sind [`MainScene.cs`](/Assets/Scripts/MainScene.cs) und [`BackendConnection.cs`](/Assets/Scripts/BackendConnection.cs). Die Methoden und Variablen dieser Klassen sind im Code ausführlich kommentiert, sodass hier nicht sehr stark darauf eingegangen wird.
+
+### MainScene.cs
+Die gleichnamige Klasse erbt von MonoBehaviour und wird als eine Art Hauptskript der Szene (`MainScene`) genutzt. Sie ermöglicht das Setzen von Objekten, die Anzeige des "Fadenkreuzes" und das Suchen von Objekten mithilfe der Suchleiste. Außerdem nutzt sie Methoden aus `BackendConnection.cs`, um platzierbare Objekte zu laden.
+
+#### Öffentliche Variablen
+- `objectToPlace`
+  - GameObject, das mithilfe der Methode `PlaceObject` platziert werden kann
+- `placementIndicator`
+  - GameObject, welches als "Fadenkreuz" genutzt wird, um anzuzeigen, wo das nächste Objekt platziert wird
+- `listObjectPrefab`
+  - GameObject, das ein Objekt in der Auswahlliste darstellt
+
+
+### BackendConnection.cs
+Die gleichnamige Klasse dient als Verbindung zum Backend und ermöglicht die Abfrage aller Informationen zu platzierbaren Objekten aus dem Backend von der Datenbank sowie aller zu einem Objekt gehörigen Dateien. Außerdem stellt sie mit `BundleInfo` eine Klasse zur Verfügung, die dem Speichern eines Eintrages in die [Tabelle `bundles`](#datenbankeintrag-erg%C3%A4nzen) und dem dazugehörigen GameObject dient.
+
 
 ## UI
 
