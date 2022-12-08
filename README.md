@@ -286,8 +286,26 @@ Diese Datenbankeinträge enthalten analog zum Ordnerpfad Beispiel im Abschnitt *
 
 ---------------------------------------------------------------------------------------
 # Frontend
+Das Frontend ist eine mithilfe von Unity entwickelte AR-App für Smartphones.
 
 ## Installation
+### Entwicklungsumgebung
+1. Zur Entwicklung wurde die Unity Version `2021.3.1f1` genutzt. Diese Version ist im [Unity Download Archiv](https://unity.com/releases/editor/archive) zu finden.
+2. Das Repository kann mithilfe von git mit dem Befehl `git clone https://github.com/InspirerHWR2020/App.git` oder mithilfe von GitHub Desktop geklont werden.
+3. Ist das Repository geklont, kann man es mithilfe von Unity öffnen.
+
+### Smartphone
+Es gibt zwei Wege, die App auf einem Smartphone zu installieren:
+- Installation auf einem Android-Gerät mithilfe der APK-Datei
+  - APK-Datei auf das Smartphone laden.
+  - Installation von Apps mithilfe von lokalen APK-Dateien erlauben.
+  - APK-Datei öffnen und die App installieren.
+- Die App selbst mit Unity bauen und auf dein Smartphone laden.
+  - Entwicklermodus auf dem Smartphone aktivieren
+  - USB-Debugging auf dem Smartphone aktivieren.
+  - Das Smartphone per USB mit dem Enwicklung-PC verbinden und dem USB-Debugging über diesen PC zustimmen.
+  - In Unity `File` und `Build and Run` auswählen.
+
 
 ## Anbindung an Backend
 
