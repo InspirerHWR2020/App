@@ -4,18 +4,171 @@ https://user-images.githubusercontent.com/88034713/206235447-e629eb81-8ec8-4f6f-
 
 # Inhalt
 1. [Backend](#backend)
-   1. [Installation](#installation)
-   2. [Konfiguration](#konfiguration)
-   3. [Backend Struktur](#backend-struktur)
-   4. [API](#api)
+   1. [Struktur](#struktur)
+   2. [API](#api)
+   3. [Installation](#installation)
+   4. [Konfiguration](#konfiguration)
 2. [Frontend](#frontend)
+   1. [Installation](#installation-1)
    1. [Anbindung an Backend](#anbindung-an-backend)
    2. [UI](#ui)
 
-----
+-----------------------------------------------------------------------------------
 
 # Backend
+
+
+## Struktur
 Das Backend besteht aus vier Docker Containern, die auf einem Hostserver laufen.
+
+<details><summary>Abbildung</summary>
+
+   ![](/docs/images/backend_structure.jpg)
+   
+</details>
+
+- database
+  - PostgreSQL-Datenbank
+  - Speicherung der Daten der platzierbaren Objekte
+  - Enthält Namen der Objekte und zusätzliche Informationen, die zum richtigen Abrufen und Platzieren benötigt werden.
+- pgadmin
+  - pgAdmin 4
+  - Administrationsoberfläche für die im `database`-Container laufende Datenbank
+  - Dient dem manuellen Hinzufügen von Objekteinträgen.
+  - Die Daten werden im Verzeichnis `/data` ([Link](/Backend/data)) gespeichert
+- postgrest
+  - RESTful API für die im `database`-Container laufende Datenbank
+  - Dient dem Abrufen von Informationen von der Datenbank durch die AR-App
+- nginx
+  - Webserver, Reverse Proxy
+  - Wird mithilfe der Datei `nginx.conf` ([Link](/Backend/nginx.conf)) konfiguriert
+  - Dient als universelle Schnittstelle für Anfragen aus der AR-App
+  - Stellt die im Verzeichnis `assetbundles` ([Link](/Backend/assetbundles)) abgelegten, zu den platzierbaren Objekten gehörigen AssetBundles, glTF-/GLB-Dateien und Texturen unter `http://<server>:8080/bundles` zur Verfügung
+  - Leitet Anfragen an `http://<server>:8080/database` an den `postgrest` Container weiter
+
+
+## API
+
+### `/database`
+Alle Anfragen an `http://<server>:8080/database` werden an die PostgREST API weitergeleitet. Weitere Informationen können in der entsprechenden [Dokumentation](https://postgrest.org/en/stable/api.html) gefunden werden.
+
+#### `http://<server>:8080/database/bundles`
+<details><summary>Als Ergebnis erhält man eine Liste aller platzierbaren Objekte in der Tabelle `bundles` inklusive der zugehörigen Informationen im JSON-Format:</summary>
+   <p>
+      
+      [
+          {
+              "id": 1,
+              "file_name": "streetlampone",
+              "display_name": "Straßenlaterne (klein)",
+              "asset_name": "StreetLamp1_Short (Concrete)",
+              "gltf": false,
+              "additional_files": null,
+              "custom_rotation_x": 0,
+              "custom_rotation_y": 0,
+              "custom_rotation_z": 0
+          },
+          {
+              "id": 2,
+              "file_name": "streetlampbigdouble",
+              "display_name": "Straßenlaterne (groß, doppelseitig)",
+              "asset_name": "StreetLamp1_TallDouble (Concrete)",
+              "gltf": false,
+              "additional_files": null,
+              "custom_rotation_x": 0,
+              "custom_rotation_y": 0,
+              "custom_rotation_z": 0
+          },
+          {
+              "id": 4,
+              "file_name": "Simple_Wooden_Dining_Chair.glb",
+              "display_name": "Holzstuhl",
+              "asset_name": null,
+              "gltf": true,
+              "additional_files": [
+                  "Poplar_4K_Roughness.jpg",
+                  "Poplar_4K_Albedo.jpg",
+                  "Poplar_4K_Normal.jpg"
+              ],
+              "custom_rotation_x": 0,
+              "custom_rotation_y": 0,
+              "custom_rotation_z": 0
+          },
+          {
+              "id": 3,
+              "file_name": "sink_mixer.gltf",
+              "display_name": "Wasserhahn",
+              "asset_name": null,
+              "gltf": true,
+              "additional_files": [
+                  "sink-mixer-ao.png"
+              ],
+              "custom_rotation_x": 90,
+              "custom_rotation_y": 0,
+              "custom_rotation_z": 0
+          }
+      ]
+      
+   </p>
+</details>
+
+#### `http://<server>:8080/database/bundles?id=eq.1`
+<details><summary>Als Ergebnis erhält man eine Liste aller platzierbaren Objekte in der Tabelle `bundles` mit der ID `1` inklusive der zugehörigen Informationen im JSON-Format:</summary>
+   <p>
+      
+      [
+          {
+              "id": 1,
+              "file_name": "streetlampone",
+              "display_name": "Straßenlaterne (klein)",
+              "asset_name": "StreetLamp1_Short (Concrete)",
+              "gltf": false,
+              "additional_files": null,
+              "custom_rotation_x": 0,
+              "custom_rotation_y": 0,
+              "custom_rotation_z": 0
+          }
+      ]
+      
+   </p>
+</details>
+
+
+### `/bundles`
+Die Anfragen an `/bundles` werden nicht weitergeleitet und stellen Dateien aus dem Verzeichnis `assetbundles` ([Link](/Backend/assetbundles)) zur Verfügung. Wird keine Datei sondern ein Verzeichnis angefragt, wird als Antwort eine automatisch generierte HTML-Datei gesendet, die den Inhalt des Verzeichnisses darstellt.
+
+#### `http://<server>:8080/bundles/`
+<details><summary>Als Ergebnis erhält man eine HTML-Datei, die den Inhalt des angefragten Verzeichnisses enthält.</summary>
+   <p>
+      
+      <html>
+         <head>
+            <title>Index of /bundles/</title>
+         </head>
+         <body>
+            <h1>Index of /bundles/</h1>
+            <hr>
+            <pre><a href="../">../</a>
+            <a href="Simple_Wooden_Dining_Chair/">Simple_Wooden_Dining_Chair/</a>                        02-Dec-2022 10:01                   -
+            <a href="sink_mixer/">sink_mixer/</a>                                        02-Dec-2022 10:01                   -
+            <a href="Simple_Wooden_Dining_Chair.glb">Simple_Wooden_Dining_Chair.glb</a>                     01-Dec-2022 16:35            17836224
+            <a href="sink_mixer.gltf">sink_mixer.gltf</a>                                    30-Nov-2022 23:49            10915125
+            <a href="streetlampbigdouble">streetlampbigdouble</a>                                28-Nov-2022 21:39             3630762
+            <a href="streetlampone">streetlampone</a>                                      27-Nov-2022 23:49             3589969
+            </pre>
+            <hr>
+         </body>
+      </html>
+      
+   </p>
+   
+   ![](/docs/images/bundles_html.png)
+   
+</details>
+
+#### `http://<server>:8080/bundles/streetlampone`
+Als Ergebnis erhält man das AssetBundle `streetlampone` in Dateiform.
+
 
 ## Installation
 Zur Nutzung der Container müssen [Docker](https://www.docker.com/) und [Docker Compose](https://docs.docker.com/compose/install/) auf dem Host installiert sein. Außerdem werden folgende Docker Images benötigt:
@@ -33,6 +186,7 @@ Vor der Erstellung der Container müssen die beigelegten Dateien `docker-compose
 ├─ docker-compose.yaml
 └─ nginx.conf
 ```
+Eine vorbefüllte Beispielstruktur ist im Verzeichnis [Backend](/Backend) vorhanden. Die Nutzung der hier enthaltenen Dateien erleichtert die spätere Konfiguration.
 
 Die Container können nun gebaut, erstellt und gestartet werden, indem der Befehl `docker compose up` im soeben erstellten Verzeichnis ausgeführt wird. ([Dokumentation](https://docs.docker.com/engine/reference/commandline/compose_up/))
 
@@ -107,7 +261,7 @@ Zur Verwendung von **glTF- und GLB-Dateien** werden diese ebenfalls im Ordner `a
 
 
 #### Datenbankeintrag ergänzen
-Die App greift nur auf Dateien zu, die auch in der Tabelle `bundles` der Datenbank eingetragen sind. Pro platzierbarem Objekt wird ein Eintrag benötigt. Dabei ist die Struktur der Tabelle folgende:
+Die App greift nur auf Dateien zu, die auch in der Tabelle `bundles` der Datenbank eingetragen sind. Diese Tabelle muss gegebenenfalls noch erstellt werden, wenn nicht, wie im Abschnitt [Installation](#installation) beschrieben, die vorhandenen Daten übernommen wurden. Pro platzierbarem Objekt wird ein Eintrag benötigt. Dabei ist die Struktur der Tabelle folgende:
 
 | Spalte             | Datentyp  | Not NULL  | Standardwert | Beschreibung                                                             |zu setzen für |
 |--------------------|-----------|-----------|--------------|--------------------------------------------------------------------------|--------------|
@@ -130,19 +284,10 @@ Diese Datenbankeinträge enthalten analog zum Ordnerpfad Beispiel im Abschnitt *
 | 2   | sink_mixer.gltf | Wasserhahn               | \[null\]                       | true   | {sink-mixer-ao.png}| 90                 | 0                  | 0                  |
 
 
-## Backend Struktur
-<details><summary>Abbildung</summary>
-
-   ![](/docs/images/backend_structure.jpg)
-   
-</details>
-
-
-## API
-
-
-----
+---------------------------------------------------------------------------------------
 # Frontend
+
+## Installation
 
 ## Anbindung an Backend
 
