@@ -8,14 +8,30 @@ using Siccity.GLTFUtility;
 
 /// <summary>
 /// This class is used to communicate with the backend. 
-/// <para>It features retrieving a list of all available objects and the objects itself.</para
+/// <para>It features retrieving a list of all available objects and the objects itself.</para>
 /// </summary>
 public class BackendConnection
 {
     /// url to the postgrest REST-API for the postgreSQL database
-    private string database_url = "http://inspirer.lindstedt.berlin/database";
+    private string database_url = "";
     /// url to the file server that hosts the asset bundles and gltf files
-    private string assetbundle_storage_url = "http://inspirer.lindstedt.berlin/bundles";
+    private string assetbundle_storage_url = "";
+
+    public BackendConnection() {
+        this.loadConfig();
+    }
+
+    /// <summary>
+    /// Loads the configuration for backend access from Settings.cs.
+    /// </summary>
+    public void loadConfig() {
+        Debug.Log("INSPIRER loading backend config");
+
+        this.database_url = Settings.backendDatabaseUrl;
+        this.assetbundle_storage_url = Settings.backendAssetsUrl;
+
+        Debug.Log("INSPIRER successfully loaded backend config");
+    }
 
     /// <summary>
     /// Retrieves the information about all available bundles from the backend and returns it with a callback function.
@@ -37,6 +53,7 @@ public class BackendConnection
     /// from the backend, extracts the object and returns it with a callback function.
     /// </summary>
     public IEnumerator getObjectFromBackend(BundleClass online_bundle_info, System.Action<GameObject> callback) {
+        Debug.Log("INSPIRER downloading asset from: " + this.assetbundle_storage_url + "/" + online_bundle_info.file_name);
         
         if (online_bundle_info.gltf == false) {
             Debug.Log("INSPIRER downloading NON-gltf file");

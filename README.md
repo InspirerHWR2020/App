@@ -9,9 +9,10 @@ https://user-images.githubusercontent.com/88034713/206235447-e629eb81-8ec8-4f6f-
    3. [Installation](#installation)
    4. [Konfiguration](#konfiguration)
 2. [Frontend](#frontend)
-   1. [Installation](#installation-1)
-   1. [Skripte](#skripte)
-   2. [UI](#ui)
+   1. [Konfiguration](#konfiguration-1)
+   2. [Installation](#installation-1)
+   3. [Skripte](#skripte)
+   4. [UI](#ui)
 
 -----------------------------------------------------------------------------------
 
@@ -195,6 +196,8 @@ Die Administrationsseite der Datenbank (pgAdmin 4) sollte unter `http://<host-ip
 
 
 ## Konfiguration
+Bei Anpassung der Serveradressen und Ports bitte die Frontend-Konfiguration wie im [entsprechenden Abschnitt](#konfiguration-1) beschrieben anpassen.
+
 ### Freigelegte Ports
 Die freigelegten Ports der NGINX- und des pgAdmin-Containers können angepasst werden, indem in der Datei `docker-compose.yaml` ([Link](/Backend/docker-compose.yaml)) die erste Zahl des `ports`-Parameters geändert wird. Anschließend kann der Befehl `docker-compose up -d` ausgeführt werden, um die angepassten Container erneut zu erstellen.
 
@@ -287,6 +290,17 @@ Diese Datenbankeinträge enthalten analog zum Ordnerpfad Beispiel im Abschnitt *
 ---------------------------------------------------------------------------------------
 # Frontend
 Das Frontend ist eine mithilfe von Unity entwickelte AR-App für Smartphones.
+
+## Konfiguration
+Zur Anbindung an das Backend müssen die Serveradresse und der Basisphad für die PostgREST API und die Objekt-Dateien konfiguriert werden. Diese Konfigurationen befinden sich in der Datei [`Assets/Scripts/Settings.cs`](Assets/Scripts/Settings.cs). Die Konfigurationen können wie folgt gesetzt werden:
+
+```cs
+public static class Settings
+{
+    public static readonly string backendDatabaseUrl = "http://<server>:<port>/database";
+    public static readonly string backendAssetsUrl = "http://<server>:<port>/bundles";
+}
+```
 
 ## Installation
 ### Entwicklungsumgebung
