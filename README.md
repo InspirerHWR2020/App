@@ -341,7 +341,34 @@ Die gleichnamige Klasse dient als Verbindung zum Backend und ermöglicht die Abf
 
 
 ## UI
+Jegliche Objekte und Elemente des User Interface werden per Hirarchiestruktur angeordnet. Um in Unity ein Interface erstellen zu können, gilt es zuerst einen Hauptcanvas zu erstellen, der die restlichen UI Elemente beinhaltet und als Hauptbildschirm für die Applikation fungiert. Der Hauptcanvas, `User InterfaceCanvas` genannt, ist hierbei der oberste Knotenpunkt in der Hirarchie des User Interface. Da bei der Applikation das Bild hauptsächlich von der Kamera durch `AR Session` bezogen wird, wird der Hauptcanvas bis auf die nötigen interagierbaren Elemente leer gelassen. Für das User Interface sind bisher 4 weitere Ansichten implementiert worden, wovon 3 zur Laufzeit in Benutzung sind.
+- `MenuButtons`
+   - Buttons zur Navigation durch die Applikation
+- `ObjectMenuCanvas`
+   - Menü zur Auswahl eines zu platzierenden Objektes
+- `SideMenu`
+   - Seitenmenü für weitere mögliche Interaktionsmöglichkeiten / Einstellungen
+- `PlacedObjectInfo`
+   - Fenster zum Anzeigen der Informationen eines platzierten Objekts
+   - bisher nicht in Verwendung
 
+### MenuButtons
+In diesem Bereich befinden sich die Buttons, die zur Navigations in die verschiedenen Fenster der Applikation von Nöten sind. Gemäß des Entwurfs gibt es in diesem Bereich 3 Buttons die zum einen in das Seitenmenü führen sollen, das Fenster zur Objektauswahl ausklappen sollen und ein weiterer Button der für verschiedene Zwecke benutzt werden kann. Die verschiedenen Buttons funktionieren hierbei mit Eventhandlern, die eine entsprechende Animation abspielen sobald einer der Buttons geklickt wird. So spielt der `SideMenuButton` eine entsprechende [Animation] die das Seitenmenü ausfährt, wenn Dieser angeklickt wird. Nach dem gleichen Prinzip spielt der `AddButton` eine [Animation] ab, die das Objektmenü ausfährt.
+
+### ObjectMenuCanvas
+In diesem Fenster befindet sich die Ansicht zum Auswählen von zu platzierenden Objekten. Hierfür wurde ein Canvas benutzt, da beim Ausblenden eines Canvas die Inhalte nicht extra geladen werden, was zu einer besseren Performance führt. In diesem Fenster befindet sich zuerst ein Bereich `CloseArea` der zur Schließung des Fensters als Button fungiert und die Animation zum ausfahren des Objektmenüs rückwärts abspielt, wodurch sich das Fenster wieder schließt. Unterhalb des `CloseArea` Bereichs befindet sich eine Suchleiste `SearchImageInput` mit der man gelistete Objekte filtern kann. Desweiteren befindet sich ein Bereich zur Auswahl einer Kategorie, zur weiteren Filterung der gelisteten Ergebnisse, namens `CategoriesButtons`. Ziel hierbei ist es, Kategorien dynamisch aus der Datenbank zu laden, und mittels Prefabs in den Bereich hinzuzufügen. Dieser Abschnitt ist bisher jedoch noch nicht implementiert. Zuletzt gibt es noch einen weiteren Bereich `ObjectsCanvas`, der zum Anzeigen der platzierbaren Objekte benutzt wird. In diesem Bereich werden die Objekte, je nach Filterung, dynamisch aus der Datenbank geladen und mittels Prefab in die Bereich hinzugefügt. Die Prefabs die dem Bereich hierbei hinzugefügt werden, fungieren dabei als Button. Diese haben per Script einen Eventhandler implementiert, der das jeweilige ausgewählte Model eines Objekts lädt, und das Objektmenü schließt.
+
+### SideMenu
+In dem Seitenmenü sind bisher noch keine weiteren Funktionen implementiert, bis auf den Button `SideMenuButton` der das Fenster wieder schließt. Es sind lediglich Platzhalter für Menüoptionen vorhanden, die in der Theorie auch dynamisch in den Bereich geladen werden können. Hierfür ist jedoch noch keine weitere Vorarbeit geleistet worden.
+
+### PlacedObjectInfo
+Da dieses Fenster bisher noch nicht in Nutzung zur Laufzeit ist, sind in diesem Fenster bisher nur Elemente ohne Funktion implementiert.
+
+### Animation
+Die Animationen die zum ausfahren der jeweiligen Fenster benutzt werden, werden in einer weiteren Datei gespeichert, die die Keyframes der Animation beinhaltet. Anhand der Keyframes wird dann eine Animation erstellt. Diese Datei kann dann im Anschluss z.B. einem Eventhandler übergeben werden, wodurch die Animation abgespielt wird, sollte der Fall des Eventhandlers eintreten.
+
+### Layout und Responsiveness
+Um die Applikation auf möglichst vielen Geräten mit unterschiedlichen Auflösungen benutzbar zu machen, gilt es die verschiedenen UI-Elemente demenstprechend anzupassen. Hierbei kommen Anker und Layouts zum Einsatz. Ein Anker ist hierbei der Punkt an dem ein Objekt sich an sein Vaterobjekt orientiert. So wird zum Beispiel der Bereich `MenuButtons` an die untere Seite des Hauptcanvas `User InterfaceCanvas` geankert, wodurch der Bereich auch bei unterschiedlichen Auflösungen immer unten am Bildschirm dargestellt wird. Des weiteren können Anker auch mit der Größe einer Seite skalieren. So wird z.B. das `SideMenu` der Höhe des Hauptcanvas angepasst und füllt dementsprechend auch bei unterschiedlichen Auflösungen die Höhe des Bildschirms. Ähnlich ist dem der Fall auch `ObjectMenuCanvas`, bloß dass hier der Anker sich an die untere Seite des Hauptcanvas anpasst und somit mit die in die Breite skaliert. Damit Objekte konstant mit gleichen Abständen angezeigt werden, kommen Layouts zum Einsatz. Layouts sind eine automatische Anpassung der Objekte innerhalb eines Bereiches, der ein entsprechendes Layout verwendet. So verwenden zum Beispiel die Fenster `SideMenu` und `MenuButton` beide ein Layout, um die Objekte innerhalb richtig darzustellen. `SideMenu` verwendet ein Vertical Layout, wodurch die Objekte innerhalb des Fensters vertikal angeordnet werden. `MenuButton` hingegen verwendet hingegen ein Horizontal Layout. Auch die Unterbereiche von `ObjectMenuCanvas` verwenden teilweise Layouts, um das dynamische Laden der Objekte möglichst problemfrei zu gestalten. `CategoriesButtons` verwendet hierbei ein Horizontal Layout und `ObjectsCanvas` ein Vertical Layout. Trotz der umgesetzen Technicken gibt es bei manchen Auflösung dennoch Probleme, da Unity's Responsiveness Möglichkeiten teilweise sehr unintuitiv sind.
 
 ----
 # Mitwirkende
